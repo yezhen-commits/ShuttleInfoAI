@@ -1,10 +1,17 @@
-# ShuttleAI
+# ShuttleInfo
 
-A multi-agent system chatbot that answers all badminton related question. This is project is done for fun and as a practice for what I learned about AI Agents. 
+A multi-agent chatbot system that answers badminton-related questions. The system uses a hierarchical multi-agent architecture where multiple AI agents are assigned to specific task including retrieving information from a structured database, extracting information from external resources and provide contextual insights. The platform is implemented using FastAPI for backend services and uses OpenAI GPT models to provide understand user's question and provide good answer. This system also support chat history storage and retrieval, allowing user to continue the conversation even if close the web application. The frontend of the system is created using React with Typescript, styled with CSS and built with Vite. 
+
 ---
 
 ## Multi Agent System Architecture 
 ![Description](Readme_asset/Agent_Structure.png)
+
+- Manager Agent: Understands the user's question and decides which agent(s) to call
+- Database Agent: Retrieves badminton player information (name, country, height, birth date, highest ranking) from a MySQL database
+- MCP Agent: Retrieves badminton competition and tournament data via Sportradar API using the Model Context Protocol (MCP)
+- Search Web Agent: Searches Wikipedia and the web for general badminton knowledge such as rules, techniques, and equipment
+- Answer Creation Agent: Takes all collected information and formats it into a structured response for the user
 
 ## Setup
 ### Setting up Backend
@@ -32,6 +39,7 @@ python3.12 -m venv .venv
 source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 ```
+
 Go to the "script" directory and run the command below to test the backend (Run the command in your venv) 
 ```bash 
 uvicorn main:app --reload --port 8000 
@@ -47,6 +55,7 @@ npm run dev
 A link will appear in the terminal, open it to have access to view the frontend  
 
 --- 
+
 ## Changes that will be implement 
 - SQL server will be replaced with a Vector Database for RAG system. The vector database will contain all the player information.
 

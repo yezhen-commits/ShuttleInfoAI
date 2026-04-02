@@ -23,7 +23,8 @@ block_word_list = ["drop", "delete", "update", "insert", "alter"]
 
 load_dotenv()
 
-mysql_uri = "mysql+mysqlconnector://root:yezhen0100@localhost:3306/badminton_player_database"
+"""format is mysql+mysqlconnector://user:password@localhost:3306/badminton_player_database"""
+mysql_uri = "mysql+mysqlconnector://:@localhost:3306/badminton_player_database"
 db = SQLDatabase.from_uri(mysql_uri)
                           
 search_engine = TavilyClient()

@@ -7,6 +7,7 @@
 .input-bar__row {
   display: flex;
   gap: 10px;
+  align-items: center;
 }
 
 .input-bar__input {
@@ -20,6 +21,7 @@
   font-weight: 600;
   color: #000000;
   background-color: #84847f;
+  min-width: 0;  
 }
 
 .input-bar__input:focus {
@@ -34,7 +36,9 @@
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.2s;;
+  transition: background 0.2s;
+  flex-shrink: 0;
+  width: 90px;  
 }
 
 .input-bar__button--active {

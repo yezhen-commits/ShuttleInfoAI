@@ -26,8 +26,6 @@ jupyterlab>=4.5.1
 wikipedia
 fastapi
 uvicorn
-<<<<<<< HEAD
-mysql-connector-python
-=======
-mysql-connector-python
->>>>>>> df3c553 (modify requirement)
+langchain-mongodb
+pymongo
+psycopg2-binary

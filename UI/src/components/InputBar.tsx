@@ -35,7 +35,7 @@ export default function InputBar({
           onClick={onSend}
           disabled={!canSend}
         >
-          {loading ? "..." : "Send"}
+          {loading ? ".  .  .  .  ." : "Send"}
         </button>
       </div>
     </div>

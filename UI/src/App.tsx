@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
 
-import Sidebar    from "../components/Sidebar";
-import TopBar     from "../components/TopBar";
-import ChatWindow from "../components/ChatWindow";
-import InputBar   from "../components/InputBar";
+import Sidebar    from "./components/Sidebar";
+import TopBar     from "./components/TopBar";
+import ChatWindow from "./components/ChatWindow";
+import InputBar   from "./components/InputBar";
 
 import type { Chat, Message } from "../types";
 import "./App.css";

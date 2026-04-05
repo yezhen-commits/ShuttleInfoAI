@@ -1,4 +1,4 @@
-import type { Chat } from "../types";
+import type { Chat } from "../../types";
 import "./Sidebar.css";
 
 interface SidebarProps {

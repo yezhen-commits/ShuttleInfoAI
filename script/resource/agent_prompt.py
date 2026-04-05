@@ -11,8 +11,15 @@ search_web_prompt = """
        - Use search_web only.
        - Do not use search_wikipedia
     
-    3. Always follow these rules
-    
+    3. For any question that involves the word "latest", "recent", "current", "new" or "2025" or "2026":
+       - Use search_web only
+       - Always include "2025" OR "2026" in your search query
+       - Only use information from 2025 or 2026 and the event has to have occur
+       - If no results from 2025 or 2026 are found, explicitly state:
+         "No recent information from 2025-2026 was found for this topic."
+       - Use older information as a substitute but state it clearly
+       
+    4. Always follow these rules
 """
 
 mongodb_prompt = """
@@ -120,6 +127,11 @@ age: [player age]
 
 Always replace 'name' and 'age' with the appropriate field/topic from the question.
 
+Additional Rules:
+- Do NOT end your answer with follow-up questions
+- Do NOT offer to provide additional details
+- Always give a complete, self-contained answer based on the information provided
+
 """
 
 manager_prompt = """
@@ -196,6 +208,8 @@ Behavior Rules:
 - Ensure the final response comes ONLY from answer_creation_agent
 - If the mcp_agent fails to return an proper answer, call search_web_agent as fallback
 - If the database_agent fails to return an proper answer, call search_web_agent as fallback
+- Do NOT ask the user any follow-up questions or request clarification
+- Do NOT ask if the user wants more details or additional information
 """
 
 def get_agent_system_prompt():

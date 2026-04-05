@@ -8,7 +8,7 @@ import InputBar   from "./components/InputBar";
 import type { Chat, Message } from "../types";
 import "./App.css";
 
-const API   = import.meta.env.VITE_API_URL;
+const API = import.meta.env.VITE_API_URL;
 
 const genId = (): string =>
   `thread_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;

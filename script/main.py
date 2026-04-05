@@ -53,7 +53,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:5173",
-        "shuttle-info-ai.vercel.app"
+        "https://shuttle-info-ai.vercel.app"
     ],
     allow_methods=["*"],
     allow_headers=["*"],

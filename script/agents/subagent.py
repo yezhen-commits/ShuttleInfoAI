@@ -76,7 +76,7 @@ def search_singles_sync(query: SinglesSearchQuery) -> str:
         conn = get_connection()
         cursor = conn.cursor()
 
-        selected = list(SINGLES_ALLOWED_FIELDS.values())  # always return all fields
+        selected = list(SINGLES_ALLOWED_FIELDS.values()) 
 
         sql = f"""
             SELECT {', '.join(selected)}
@@ -121,8 +121,8 @@ def search_doubles_sync(query: DoublesSearchQuery) -> str:
         conn = get_connection()
         cursor = conn.cursor()
 
-        selected = list(DOUBLES_ALLOWED_FIELDS.values())  # always return all fields
-
+        selected = list(DOUBLES_ALLOWED_FIELDS.values()) 
+        
         sql = f"""
             SELECT {', '.join(selected)}
             FROM badminton.doubles_players dp
@@ -182,9 +182,9 @@ def search_profile_sync(query: ProfileSearchQuery) -> str:
         if query.content_type:  sql += " AND content_type = %s";    params.append(query.content_type)
         if query.name:
             name_parts = query.name.strip().split()
-            for part in name_parts:
-                sql += " AND name ILIKE %s"
-                params.append(f"%{part}%")
+            part_conditions = " OR ".join(["name ILIKE %s"] * len(name_parts))
+            sql += f" AND ({part_conditions})"
+            params.extend(f"%{part}%" for part in name_parts)
 
         sql += " ORDER BY similarity DESC LIMIT %s"
         params.append(query.k)

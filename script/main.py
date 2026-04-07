@@ -62,7 +62,7 @@ app.add_middleware(
 "Establish Connection to UI"
 @app.get("/")
 def root():
-    return {"status": "ShuttleInfo AI is running ", "storage": "SQLite (ShuttleInfo_AI.db)"}
+    return {"status": "ShuttleInfo AI is running "}
 
 @app.post("/api/chat/stream")
 async def chat_stream(req: ChatRequest):

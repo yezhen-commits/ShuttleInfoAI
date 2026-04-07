@@ -1,15 +1,20 @@
 # ShuttleInfo
 
-A multi-agent chatbot system that answers badminton-related questions. The system uses a hierarchical multi-agent architecture where multiple AI agents are assigned to specific task including retrieving information from a structured database, extracting information from external resources and provide contextual insights. The platform is implemented using FastAPI for backend services and uses OpenAI GPT models to provide understand user's question and provide good answer. This system also support chat history storage and retrieval, allowing user to continue the conversation even if close the web application. The frontend of the system is created using React with Typescript, styled with CSS and built with Vite. 
+A multi-agent chatbot system that answers badminton-related questions. The system uses a hierarchical multi-agent architecture where multiple AI agents are assigned to specific task including retrieving information from a structured database, vector database, extracting information from external resources and provide contextual insights. The platform is implemented using FastAPI for backend services and uses OpenAI GPT models to provide understand user's question and provide good answer. This system also support chat history storage and retrieval, allowing user to continue the conversation even if close the web application. The frontend of the system is created using React with Typescript, styled with CSS and built with Vite. 
 
 ---
 
 ## ShuttleInfo AI Multi Agent System Architecture 
 ![Description](Readme_asset/system_architecture.png)
 
+### Deployment
+- PostgreSQL and pgvector are hosted on Neon
+- Backend is hosted on Render
+- Frontend is hosted on Vercel
+
 ### Agents Task:
 - Manager Agent: Understands the user's question and decides which agent(s) to call
-- MongoDB Agent: Retrieves badminton player information (name, country, height, birth date, highest ranking) from a vector database created using MongoDB Atlas
+- Database Agent: Retrieves structured badminton player's name, country, height, birth date, highest ranking) from PostgreSQL and unstructured information (biography, career and achievements) from a pgvector vector database 
 - MCP Agent: Retrieves badminton competition and tournament data via Sportradar API using the Model Context Protocol (MCP)
 - Search Web Agent: Searches Wikipedia and the web for general badminton knowledge such as rules, techniques, and equipment
 - Answer Creation Agent: Takes all collected information and formats it into a structured response for the user
@@ -44,10 +49,12 @@ Make a copy of example.env
 cp example.env .env
 ```
 
-Edit the .env filw to include your api keys for the models you want to use and optionalyl langsmith for tracing
+Edit the .env file to include your api keys for the models you want to use and optionalyl langsmith for tracing
 - Get OpenAI API key from [OpenAIPlatform](https://www.google.com/url?sa=t&source=web&rct=j&opi=89978449&url=https://openai.com/api/&ved=2ahUKEwik-4WF6MmTAxV-zjgGHdMMIvIQFnoECBgQAQ&usg=AOvVaw1kKUMpgi5Qz-d4ZAeuSsd1)
 - Get Tavily API key from [Tavily](https://www.google.com/url?sa=t&source=web&rct=j&opi=89978449&url=https://app.tavily.com/&ved=2ahUKEwimvtTk58mTAxVGwTgGHecjBYAQFnoECB8QAQ&usg=AOvVaw13bCj-cFHhDaVYkOyAocj6)
 - Get SportRadar API key from [SportRadar](https://marketplace.sportradar.com/products/652fa9d03bc9b0cb71d1cf7f) P.S the one I use is the trial version and it only last for 30 days
+
+Go to the "script" directory and run the "store_player_badminton.ipynb" to store player information to the database
 
 Go to the "script" directory and run the command below to test the backend (Run the command in your venv) 
 ```bash 

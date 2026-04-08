@@ -3,7 +3,7 @@ from langchain_mcp_adapters.client import MultiServerMCPClient
 from pydantic import BaseModel
 import os
 import json
-from langchain.messages import HumanMessage
+from langchain.messages import HumanMessage, AIMessage
 import asyncio
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -59,10 +59,51 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-"Establish Connection to UI"
 @app.get("/")
 def root():
     return {"status": "ShuttleInfo AI is running "}
+
+async def generate(manager_agent, req, config, full_reply):
+    try:
+        final_answer = ""
+        all_messages = []
+        async for chunk in manager_agent.astream(
+            {"messages": [HumanMessage(req.message)]},
+            config=config,
+            stream_mode="values"
+        ):
+            all_messages = chunk["messages"]
+            last_message = chunk["messages"][-1]
+            if (
+                isinstance(last_message, AIMessage) and
+                last_message.content and
+                not last_message.tool_calls
+            ):
+                final_answer = last_message.content
+
+        if not final_answer:
+            for msg in reversed(all_messages):
+                if hasattr(msg, "content") and isinstance(msg.content, str) and msg.content:
+                    final_answer = msg.content
+                    print("Answer came from fallback")
+                    break
+
+        if not final_answer:
+            final_answer = "Sorry, I could not generate a response."
+
+        for word in final_answer.split(" "):
+            token = word + " "
+            full_reply.append(token)
+            yield f"data: {json.dumps({'token': token})}\n\n"
+            await asyncio.sleep(0.03)
+
+        save_message(req.thread_id, "assistant", "".join(full_reply).strip())
+        yield "data: [DONE]\n\n"
+
+    except Exception as e:
+        yield f"data: {json.dumps({'error': str(e)})}\n\n"
+        yield "data: [DONE]\n\n"
+
 
 @app.post("/api/chat/stream")
 async def chat_stream(req: ChatRequest):
@@ -76,31 +117,10 @@ async def chat_stream(req: ChatRequest):
 
     full_reply: list[str] = []
 
-    async def generate():
-        try:
-            async for chunk in manager_agent.astream(
-                {"messages": [HumanMessage(req.message)]},
-                config=config,
-                stream_mode="values"  
-            ):
-                pass  
-            
-            final_answer = chunk["messages"][-1].content
-
-            for word in final_answer.split(" "):
-                token = word + " "
-                full_reply.append(token)
-                yield f"data: {json.dumps({'token': token})}\n\n"
-                await asyncio.sleep(0.03) 
-
-            save_message(req.thread_id, "assistant", "".join(full_reply).strip())
-            yield "data: [DONE]\n\n"
-
-        except Exception as e:
-            yield f"data: {json.dumps({'error': str(e)})}\n\n"
-            yield "data: [DONE]\n\n"
-
-    return StreamingResponse(generate(), media_type="text/event-stream")
+    return StreamingResponse(
+        generate(manager_agent, req, config, full_reply),
+        media_type="text/event-stream"
+    )
 
 @app.get("/api/chats")
 def get_chats():

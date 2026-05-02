@@ -25,7 +25,7 @@ class ChatRequest(BaseModel):
 async def start_MCP():
     badminton_client= MultiServerMCPClient(
         {
-            "Badminton_MCP_server":{
+            "Badminton_MCP_websearch_server":{
                 "transport":"stdio",
                 "command":"python",
                 "args":["resource/badminton_mcp.py"],
@@ -33,7 +33,7 @@ async def start_MCP():
         }
     )
 
-    mcp_prompt = await badminton_client.get_prompt("Badminton_MCP_server","prompt")
+    mcp_prompt = await badminton_client.get_prompt("Badminton_MCP_websearch_server","prompt")
     mcp_prompt = mcp_prompt[0].content
     mcp_tools = await badminton_client.get_tools()
     return mcp_prompt, mcp_tools
@@ -42,7 +42,7 @@ async def start_MCP():
 async def lifespan(app: FastAPI):
     global mcp_prompt, mcp_tools, manager_agent
     mcp_prompt, mcp_tools = await start_MCP()
-    subagent.mcp_agent = create_agent(model="gpt-5.4-nano", tools=mcp_tools, system_prompt=mcp_prompt)
+    subagent.search_web_agent = create_agent(model="gpt-5.4-nano", tools=mcp_tools, system_prompt=mcp_prompt)
     start_database()
     manager_agent = create_manager_agent()
     yield

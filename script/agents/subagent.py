@@ -1,10 +1,8 @@
 from dotenv import load_dotenv
-from typing import List, Any, Optional, Dict
-from tavily import TavilyClient
+from typing import Any, Optional
 import os
-import wikipedia as wk
 from langchain.agents import create_agent
-from langchain.messages import HumanMessage, AIMessage
+from langchain.messages import HumanMessage
 from resource.agent_prompt import get_agent_system_prompt
 from langchain_openai import OpenAIEmbeddings, ChatOpenAI
 from langchain.tools import tool
@@ -18,15 +16,14 @@ from langchain_community.utilities import SQLDatabase
 from langchain_community.agent_toolkits import SQLDatabaseToolkit
 
 load_dotenv()
-search_engine = TavilyClient()
 embeddings_model = OpenAIEmbeddings()
 model = ChatOpenAI(model="gpt-5.4-nano")
 
 db = SQLDatabase.from_uri(
     os.getenv("DATABASE_URL"),
-    schema="badminton",
+    schema="badmintonv2",
     include_tables=["singles_players", "doubles_players", "doubles_pairs"],
-    sample_rows_in_table_info=2
+    sample_rows_in_table_info=10
 )
 
 connection_pool = pool.ThreadedConnectionPool(
@@ -141,57 +138,17 @@ async def search_profile(query: ProfileSearchQuery) -> str:
     """Use this tool to find biography, career history and achievements of a specific player using semantic search"""
     return await asyncio.to_thread(search_profile_sync, query)
 
-@tool
-async def search_web(query: str) -> Dict[str, Any]:
-    """Use this tool to search the web for information"""
-    return search_engine.search(query)
-
-@tool
-async def search_wikipedia(query: str) -> Dict[str, Any]:
-    """Use this tool to search wikipedia for information such as definitions"""
-    try:
-        search_results = wk.search(query, results=3)
-        if not search_results:
-            return {"error": "No results found"}
-
-        results: List[Dict[str, Any]] = []
-        for title in search_results:
-            try:
-                page = wk.page(title)
-                results.append({
-                    "title": page.title,
-                    "summary": page.summary[0:1000]
-                })
-            except Exception as e:
-                print(f"Error: {str(e)}")
-                continue
-
-        if not results:
-            return {"error": "No valid pages found"}
-
-        return {"query": query, "results": results}
-    except Exception as e:
-        return {"error": f"Error: {str(e)}"}
-
-
-search_web_prompt, database_prompt, answer_creation_prompt, manager_prompt = get_agent_system_prompt()
-
+database_prompt, answer_creation_prompt, manager_prompt = get_agent_system_prompt()
 toolkit = SQLDatabaseToolkit(db=db, llm=model)
 sql_tools = toolkit.get_tools()
 
-search_web_agent = create_agent(
-    model="gpt-5.4-nano",
-    tools=[search_wikipedia, search_web],
-    system_prompt=search_web_prompt
-)
+search_web_agent = None
 
 database_agent = create_agent(
     model="gpt-5.4-nano",
     tools=sql_tools + [search_profile], 
     system_prompt=database_prompt
 )
-
-mcp_agent = None
 
 answer_creation_agent = create_agent(
     model="gpt-5.4-nano",
@@ -208,12 +165,6 @@ async def call_search_web_agent(x: str):
 async def call_database_agent(x: str):
     """call database agent for player info like rankings, points, country, biography"""
     response = await database_agent.ainvoke({"messages": [HumanMessage(content=f"Search for {x}")]})
-    return response["messages"][-1].content
-
-@tool
-async def call_mcp_agent(x: str):
-    """call mcp agent for badminton competition info"""
-    response = await mcp_agent.ainvoke({"messages": [HumanMessage(content=f"Search for {x}")]})
     return response["messages"][-1].content
 
 @tool
